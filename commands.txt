@@ -1,0 +1,14 @@
+git config --global user.name  RaissaBorgess 
+git config --global user.email raissasantos123.rs33@gmail.com
+
+dotnet new sln --name RLStore
+dotnet new mvc -o RLStore
+dotnet sln add RLStore\RLStore.csproj
+
+cd RLStore
+
+dotnet add package Microsoft.EntityFrameworkCore --version 9.0.1
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 9.0.1
+dotnet add package Microsoft.EntityFrameworkCore.Tools --version 9.0.1
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 9.0.1
+dotnet add package MySql.EntityFrameworkCore --version 9.0.0
