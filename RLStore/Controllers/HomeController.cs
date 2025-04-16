@@ -1,8 +1,9 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RLStore.Data;
 using RLStore.Models;
+using RLStore.Data;
+using Microsoft.EntityFrameworkCore;
+using RLStore.ViewModels;
 
 namespace RLStore.Controllers;
 
@@ -19,11 +20,34 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        List<Produto> produtos = _db.Produtos 
+        List<Produto> produtos = _db.Produtos
             .Where(p => p.Destaque)
             .Include(p => p.Fotos)
             .ToList();
         return View(produtos);
+    }
+
+    public IActionResult Produto(int id)
+    {
+        Produto produto = _db.Produtos
+            .Where(p => p.Id == id)
+            .Include(p => p.Categoria)
+            .Include(p => p.Fotos)
+            .SingleOrDefault();
+        
+        List<Produto> semelhantes = _db.Produtos
+            .Where(p => p.Id != id && p.CategoriaId == produto.CategoriaId)
+            .Include(p => p.Categoria)
+            .Include(p => p.Fotos)
+            .Take(4)
+            .ToList();
+        
+        ProdutoVM produtoVM = new() {
+            Produto = produto,
+            Semelhantes = semelhantes
+        };
+        
+        return View(produtoVM);
     }
 
     public IActionResult Privacy()

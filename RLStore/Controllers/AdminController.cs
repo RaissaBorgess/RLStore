@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RLStore.Controllers;
 
-
-    public class AdminController : Controller
-    {
+[Authorize(Roles = "Administrador")]
+public class AdminController : Controller 
+{
         private readonly ILogger<AdminController> _logger;
 
         public AdminController(ILogger<AdminController> logger)
@@ -22,4 +23,4 @@ namespace RLStore.Controllers;
         {
             return View("Error!");
         }
-    }
+}
