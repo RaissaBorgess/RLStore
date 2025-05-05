@@ -1,21 +1,21 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using RLStore.Data;
 using RLStore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+
 // Configuração do Serviço de Conexão com o banco de dados
-string conexao = builder.Configuration.GetConnectionString("RLStoreConn");
+string conexao = builder.Configuration.GetConnectionString("GStoreConn");
 builder.Services.AddDbContext<AppDbContext>(
     opt => opt.UseMySQL(conexao)
 );
 
-// Configuração do Serviço de Identidade de Usuários
+// Configuração do Serviço de Identity de Usuários
 builder.Services.AddIdentity<Usuario, IdentityRole>(
     options => options.SignIn.RequireConfirmedEmail = false
 ).AddEntityFrameworkStores<AppDbContext>()
@@ -25,8 +25,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope()) {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await dbContext.Database.EnsureCreatedAsync();
+    await  dbContext.Database.EnsureCreatedAsync();
 }
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -39,8 +40,8 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication();
 app.UseAuthorization();
+app.UseRouting();
 
 app.MapStaticAssets();
 
