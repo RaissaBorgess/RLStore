@@ -2,10 +2,11 @@ using RLStore.Models;
 using RLStore.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using Org.BouncyCastle.Asn1.Cmp;
 using System.Net.Mail;
 using System.Security.Claims;
+using RLStore.Data;
+using RLStore.Helpers;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
 namespace RLStore.Controllers;
@@ -15,12 +16,15 @@ public class AccountController : Controller
     private readonly SignInManager<Usuario> _signInManager;
     private readonly UserManager<Usuario> _userManager;
     private readonly IWebHostEnvironment _host;
+    private readonly AppDbContext _db;
+
 
     public AccountController(
         ILogger<AccountController> logger,
         SignInManager<Usuario> signInManager,
         UserManager<Usuario> userManager,
-        IWebHostEnvironment host
+        IWebHostEnvironment host,
+        AppDbContext db
     )
     {
         _logger = logger;
@@ -93,17 +97,49 @@ public class AccountController : Controller
         return View(register);
     }
 
-    public bool IsValidEmail(string email)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Registro(RegistroVM registro)
     {
-        try
+        if (ModelState.IsValid)
         {
-            MailAddress m = new(email);
-            return true;
-        }
-        catch (FormatException)
-        {
-            return false;
+            var usuario = Activator.CreateInstance<Usuario>();
+            usuario.Nome = registro.Nome;
+            usuario.DataNascimento = registro.DataNascimento;
+            usuario.UserName = registro.Email;
+            usuario.NormalizedUserName = registro.Email.ToUpper();
+            usuario.Email = registro.Email;
+            usuario.NormalizedEmail = registro.Email.ToUpper();
+            usuario.EmailConfirmed = true;
+            var result = await _userManager.CreateAsync(usuario, registro.Senha);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"Novo usuário registrado com o email {registro.Email}.");
+
+                await _userManager.AddToRoleAsync(usuario, "Cliente");
+
+                if (registro.Foto != null)
+                {
+                    string nomeArquivo = usuario.Id + Path.GetExtension(registro.Foto.FileName);
+                    string caminho = Path.Combine(_host.WebRootPath, @"img\usuarios");
+                    string novoArquivo = Path.Combine(caminho, nomeArquivo);
+                    using (var stream = new FileStream(novoArquivo, FileMode.Create))
+                    {
+                        registro.Foto.CopyTo(stream);
+                    }
+                    usuario.Foto = @"\img\usuarios\" + nomeArquivo;
+                    await _db.SaveChangesAsync();
+                }
+                TempData["Sucess"] = "Conta criado com sucesso!";
+                return RedirectToAction(nameof(Login));
+        
+            }
+
+            foreach (var error in result.Errors)
+            ModelState.AddModelError(string.Empty, TranslateIndentityErrors.TranslateErrorMessage(error.Code));
+            }
+        return View(registro);
         }
     }
 
-}

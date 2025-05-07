@@ -10,7 +10,7 @@ builder.Services.AddControllersWithViews();
 
 
 // Configuração do Serviço de Conexão com o banco de dados
-string conexao = builder.Configuration.GetConnectionString("GStoreConn");
+string conexao = builder.Configuration.GetConnectionString("RLStoreConn");
 builder.Services.AddDbContext<AppDbContext>(
     opt => opt.UseMySQL(conexao)
 );
