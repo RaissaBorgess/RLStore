@@ -22,16 +22,16 @@
                             <span asp-validation-for="Email" class="text-danger text-sn"></span>
                         </div>
                         <div class="form-floating mb-3">
-                            <input class="form-control" asp-for="Email" />
+                            <input class="form-control" asp-for="Senha" />
                             <label asp-for="Senha"></label>
-                            <span asp-validation-for="Email" class="text-danger text-sn"></span>
+                            <span asp-validation-for="Senha" class="text-danger text-sn"></span>
                         </div>
-                        <div class="form-floating mb-3">
-                            <input class="form-control" asp-for="Email" />
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" asp-for="Lembrar" type="checkbox" value="" />
                             <label class="form-check-label" asp-for="Lembrar"></label>
                         </div>
                         <div class="d-flex flex-column align-items-center justify-content-center mt-4 mb-0">
-                            <input type=" submit" class="btn btn-primary w-100 mb-3" value="Entrar">
+                            <input type="submit" class="btn btn-primary w-100 mb-3" value="Entrar">
                             <a class="small" href="password.html">Esqueceu sua Senha?</a>
                         </div>
                     </form>

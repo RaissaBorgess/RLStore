@@ -17,8 +17,6 @@ public class AccountController : Controller
     private readonly UserManager<Usuario> _userManager;
     private readonly IWebHostEnvironment _host;
     private readonly AppDbContext _db;
-
-
     public AccountController(
         ILogger<AccountController> logger,
         SignInManager<Usuario> signInManager,
@@ -31,6 +29,7 @@ public class AccountController : Controller
         _signInManager = signInManager;
         _userManager = userManager;
         _host = host;
+        _db = db;
     }
 
     [HttpGet]
@@ -115,7 +114,7 @@ public class AccountController : Controller
 
             if (result.Succeeded)
             {
-                _logger.LogInformation($"Novo usuário registrado com o email {registro.Email}.");
+                _logger.LogInformation($"Novo usuário registro com o email{registro.Email}.");
 
                 await _userManager.AddToRoleAsync(usuario, "Cliente");
 
@@ -128,18 +127,32 @@ public class AccountController : Controller
                     {
                         registro.Foto.CopyTo(stream);
                     }
-                    usuario.Foto = @"\img\usuarios\" + nomeArquivo;
+                    usuario.Foto = @"\img\usuarios" + nomeArquivo;
                     await _db.SaveChangesAsync();
                 }
-                TempData["Sucess"] = "Conta criado com sucesso!";
+                TempData["Success"] = "Conta Criada com Sucesso!";
                 return RedirectToAction(nameof(Login));
-        
             }
-
             foreach (var error in result.Errors)
-            ModelState.AddModelError(string.Empty, TranslateIndentityErrors.TranslateErrorMessage(error.Code));
-            }
-        return View(registro);
+                ModelState.AddModelError(string.Empty, TranslateIndentityErrors.TranslateErrorMessage(error.Code));
         }
+        return View(registro);
     }
 
+    public IActionResult AccessDenied() 
+    {
+        return View ();
+    }
+
+   public bool IsValidEmail(string email)
+   {
+    try {
+        MailAddress m = new(email);
+        return true;
+    }
+    catch (FormatException)
+    {
+        return false;
+    }
+   }
+}
